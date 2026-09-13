@@ -15,7 +15,6 @@ unset_flags()
 Usage: $(basename "$0") [options]
 Options:
     -m, --model [value]     Specify the model code of the phone
-    -k, --ksu [Y/n]         Include KernelSU
     -r, --recovery [y/N]    Compile kernel for an Android Recovery
 EOF
 }
@@ -24,10 +23,6 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --model|-m)
             MODEL="$2"
-            shift 2
-            ;;
-        --ksu|-k)
-            KSU_OPTION="$2"
             shift 2
             ;;
         --recovery|-r)
@@ -121,16 +116,8 @@ fi
 
 if [[ "$RECOVERY_OPTION" == "y" ]]; then
     RECOVERY=recovery.config
-    KSU_OPTION=n
 fi
 
-if [ -z $KSU_OPTION ]; then
-    read -p "Include KernelSU (y/N): " KSU_OPTION
-fi
-
-if [[ "$KSU_OPTION" == "y" ]]; then
-    KSU=ksu.config
-fi
 
 rm -rf build/out/$MODEL
 mkdir -p build/out/$MODEL/zip/files
@@ -140,11 +127,6 @@ mkdir -p build/out/$MODEL/zip/META-INF/com/google/android
 echo "-----------------------------------------------"
 echo "Defconfig: "$KERNEL_DEFCONFIG""
 
-if [ -z "$KSU" ]; then
-    echo "KSU: No"
-else
-    echo "KSU: Yes"
-fi
 
 if [ -z "$RECOVERY" ]; then
     echo "Recovery: N"
@@ -156,7 +138,7 @@ echo "-----------------------------------------------"
 echo "Building kernel using "$KERNEL_DEFCONFIG""
 echo "Generating configuration file..."
 echo "-----------------------------------------------"
-make ${MAKE_ARGS} -j$CORES exynos9820_defconfig $MODEL.config $KSU $RECOVERY || abort
+make ${MAKE_ARGS} -j$CORES exynos9820_defconfig $MODEL.config $RECOVERY || abort
 
 echo "Building kernel..."
 echo "-----------------------------------------------"
@@ -243,11 +225,7 @@ if [ -z "$RECOVERY" ]; then
     pushd build/out/$MODEL/zip > /dev/null
     DATE=`date +"%d-%m-%Y_%H-%M-%S"`    
 
-    if [[ "$KSU_OPTION" == "y" ]]; then
-        NAME="$version"_"$MODEL"_UNOFFICIAL_KSU_"$DATE".zip
-    else
-        NAME="$version"_"$MODEL"_UNOFFICIAL_"$DATE".zip
-    fi
+    NAME="$version"_"$MODEL"_UNOFFICIAL_"$DATE".zip
     zip -r ../"$NAME" .
     popd > /dev/null
 fi

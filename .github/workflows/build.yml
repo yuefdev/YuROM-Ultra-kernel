@@ -16,7 +16,6 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
         with:
-          submodules: recursive
           fetch-depth: 0
 
       - name: Set up build environment
@@ -42,7 +41,7 @@ jobs:
 
       - name: Build kernel (${{ matrix.target }})
         run: |
-          ./build.sh -m ${{ matrix.target }} -k y -r n
+          ./build.sh -m ${{ matrix.target }} -r n
 
       - name: Upload artifact (${{ matrix.target }})
         uses: actions/upload-artifact@v4
