@@ -1,0 +1,79 @@
+{
+  "release": "v35-beta",
+  "base_commit": "a97afb2c431802523a89fb875a3faadb7dcaac26",
+  "applied_patch_sha256": "6d353b6bc4d6af95d4ef9215f2b80825593dddfb2ac66efffdd38bca6ab654e5",
+  "toolchain_git_tree": "a86cb6592a29d53254d3a88ff2d8282233a273e2",
+  "toolchain_archive_sha256": "85a113b981c1e4c81fb98afce61b2eb74c425dc51c3116fee08d3a863e611a22",
+  "compiled_additional_sources": {
+    "drivers/soc/samsung/cal-if/exynos9820-oc.h": "a93061737da3dbdcd18cf387151d7be68966a6887e78c3d700455b8fb35f9d5f",
+    "drivers/soc/samsung/exynos-hiu-budget.h": "fdced5da73e6ae74ab37a60cd2883c6fccc7911b810ea286324c0f8fd8469b9b"
+  },
+  "models": {
+    "SM-G970F": {
+      "images": {
+        "boot": {
+          "sha256": "ef5293c6d9edbca891d2f0887901eabd09e88a0e3c13e03325940fe36f3be7fb",
+          "size": 57671680
+        },
+        "dtb": {
+          "sha256": "281b908f1049af0bfc4d795c52ba163c7710196380f9b147abb786ce06b58e9b",
+          "size": 238908
+        },
+        "dtbo": {
+          "sha256": "1b1f8ad98093d0a53b2a64dfb636a9a71634e2bd1444ddf7d88bdea3761b3c83",
+          "size": 1239124
+        }
+      },
+      "embedded_config_sha256": "89510c5ef163d97b6996f5b3e12774dd0ffbe75bc6c0ef5f94bf1bbee1f9fdb7",
+      "kernel_image_sha256": "0eeccad861964b327ffef5640152a4c0dc855d02cbcea7f87e74c43d4864d89f",
+      "ramdisk_sha256": "debf68ada26244f18247c55115fe8c1492b4823c32036b01dff2966f6f3b3077",
+      "source_commit": "a97afb2c431802523a89fb875a3faadb7dcaac26",
+      "source_patch_sha256": "6d353b6bc4d6af95d4ef9215f2b80825593dddfb2ac66efffdd38bca6ab654e5",
+      "source_package": "ArtisanROM_OneUI9_v34_TEST_SM-G970F_TWRP.zip"
+    },
+    "SM-G973F": {
+      "images": {
+        "boot": {
+          "sha256": "99bf2e7d589f9907e47861e1c8755264e32c39c108467b497f638aa93b4b7f10",
+          "size": 57671680
+        },
+        "dtb": {
+          "sha256": "281b908f1049af0bfc4d795c52ba163c7710196380f9b147abb786ce06b58e9b",
+          "size": 238908
+        },
+        "dtbo": {
+          "sha256": "cf54186babb2635f40fdaa4a3c824ff6de7e53367e4316391c26b9534e10bf6a",
+          "size": 1624100
+        }
+      },
+      "embedded_config_sha256": "1f417ffae435f0a0aed2010b24ebbb97fcca2cbdc775772b612c0d7ede2c7e37",
+      "kernel_image_sha256": "f13308af8440dc0237c5f5a0f01b655a01d82979b0c57b75c65d4bf036d7f339",
+      "ramdisk_sha256": "7767b7e855edb077ae44e6fbd46d23649d82f52d706c4305fcd61cccfb953499",
+      "source_commit": "a97afb2c431802523a89fb875a3faadb7dcaac26",
+      "source_patch_sha256": "6d353b6bc4d6af95d4ef9215f2b80825593dddfb2ac66efffdd38bca6ab654e5",
+      "source_package": "ArtisanROM_OneUI9_v34_TEST_SM-G973F_TWRP.zip"
+    },
+    "SM-G975F": {
+      "images": {
+        "boot": {
+          "sha256": "cbd3cf225457525176e53083e02ec216239e59e5f2542c3621ccff30b6cac088",
+          "size": 57671680
+        },
+        "dtb": {
+          "sha256": "281b908f1049af0bfc4d795c52ba163c7710196380f9b147abb786ce06b58e9b",
+          "size": 238908
+        },
+        "dtbo": {
+          "sha256": "1107472951e3ef5cc557dd5fc799dc3272e433df8ea23163866d9dbdf0abd31f",
+          "size": 1807472
+        }
+      },
+      "embedded_config_sha256": "919bf54a57c0604bfd2278f5c518c150ea646321b39d0acd110fad30c3ef96af",
+      "kernel_image_sha256": "9e3ae362e1240e5d95ee1af14848edae856077b0c5203839bddb2cddfbfa84a2",
+      "ramdisk_sha256": "02275a2bfa7e74bb55b2d440ccb276b918f9b9ae76c6a4c4efc38729429b57a2",
+      "source_commit": "a97afb2c431802523a89fb875a3faadb7dcaac26",
+      "source_patch_sha256": "6d353b6bc4d6af95d4ef9215f2b80825593dddfb2ac66efffdd38bca6ab654e5",
+      "source_package": "ArtisanROM_OneUI9_v34_TEST_SM-G975F_TWRP.zip"
+    }
+  }
+}

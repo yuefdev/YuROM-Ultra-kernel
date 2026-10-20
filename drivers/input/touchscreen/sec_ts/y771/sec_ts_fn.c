@@ -1600,6 +1600,42 @@ static ssize_t sec_ts_fod_info_show(struct device *dev,
 	return snprintf(buf, SEC_CMD_BUF_SIZE, "%d,%d,%d", data[0], data[1], ts->fod_vi_size);
 }
 
+static ssize_t sec_ts_enabled_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct sec_cmd_data *sec = dev_get_drvdata(dev);
+	struct sec_ts_data *ts = container_of(sec, struct sec_ts_data, sec);
+
+	return scnprintf(buf, PAGE_SIZE, "%d\n",
+			ts->input_dev_touch->disabled ? 1 : 2);
+}
+
+static ssize_t sec_ts_enabled_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct sec_cmd_data *sec = dev_get_drvdata(dev);
+	struct sec_ts_data *ts = container_of(sec, struct sec_ts_data, sec);
+	int state, stage, ret;
+	char extra;
+
+	if (sscanf(buf, "%d,%d %c", &state, &stage, &extra) != 2 ||
+			state < 1 || state > 4 || stage < 0 || stage > 1)
+		return -EINVAL;
+
+	/* HAL: OFF=1, ON=2, DOZE=3, DOZE_SUSPEND=4; early=0, late=1.
+	 * Resume before panel-on and suspend after panel-off. The existing
+	 * close callback retains low-power gestures and secure-touch handling.
+	 */
+	if ((state == 2 && stage == 0) || (state != 2 && stage == 1)) {
+		ret = input_set_device_enabled(ts->input_dev_touch, state == 2);
+		if (ret)
+			return ret;
+	}
+
+	return count;
+}
+
+static DEVICE_ATTR(enabled, 0660, sec_ts_enabled_show, sec_ts_enabled_store);
 static DEVICE_ATTR(ito_check, 0444, read_ito_check_show, NULL);
 static DEVICE_ATTR(raw_check, 0444, read_raw_check_show, NULL);
 static DEVICE_ATTR(multi_count, 0664, read_multi_count_show, clear_multi_count_store);
@@ -1639,6 +1675,7 @@ static DEVICE_ATTR(fod_pos, 0444, sec_ts_fod_position_show, NULL);
 static DEVICE_ATTR(fod_info, 0444, sec_ts_fod_info_show, NULL);
 
 static struct attribute *cmd_attributes[] = {
+	&dev_attr_enabled.attr,
 	&dev_attr_scrub_pos.attr,
 	&dev_attr_ito_check.attr,
 	&dev_attr_raw_check.attr,

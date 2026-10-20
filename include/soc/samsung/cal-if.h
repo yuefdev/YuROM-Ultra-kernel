@@ -46,6 +46,28 @@ extern int cal_is_lastcore_detecting(unsigned int cpu);
 
 extern unsigned int cal_dfs_get(char *name);
 extern unsigned long cal_dfs_get_max_freq(unsigned int id);
+#if defined(CONFIG_SOC_EXYNOS9820) && !defined(CONFIG_SOC_EXYNOS9820_EVT0) && \
+	defined(CONFIG_ACPM_DVFS)
+bool exynos9820_cluster_oc_override(unsigned int id, unsigned int dt_max);
+unsigned int exynos9820_gpu_oc_rate(unsigned int original_khz);
+unsigned int exynos9820_cluster_oc_thermal_limit(const char *zone,
+		unsigned int range, int temperature, unsigned int limit_khz);
+#else
+static inline unsigned int exynos9820_gpu_oc_rate(unsigned int original_khz)
+{
+	return original_khz;
+}
+static inline bool exynos9820_cluster_oc_override(unsigned int id,
+		unsigned int dt_max)
+{
+	return false;
+}
+static inline unsigned int exynos9820_cluster_oc_thermal_limit(const char *zone,
+		unsigned int range, int temperature, unsigned int limit_khz)
+{
+	return limit_khz;
+}
+#endif
 extern unsigned long cal_dfs_get_min_freq(unsigned int id);
 extern int cal_dfs_set_rate(unsigned int id, unsigned long rate);
 extern int cal_dfs_set_rate_switch(unsigned int id, unsigned long switch_rate);

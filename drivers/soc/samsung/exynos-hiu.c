@@ -24,10 +24,12 @@
 #include <soc/samsung/cal-if.h>
 
 #include "exynos-hiu.h"
+#include "exynos-hiu-budget.h"
 #include "../../cpufreq/exynos-ff.h"
 #include "../../cpufreq/exynos-acme.h"
 
 static struct exynos_hiu_data *data;
+static unsigned int stock_sw_pbl;
 atomic_t hiu_normdvfs_req = ATOMIC_INIT(0);
 
 static void hiu_stats_create_table(struct cpufreq_policy *policy);
@@ -55,7 +57,7 @@ static unsigned int hiu_get_freq_level(unsigned int freq)
 static unsigned int hiu_get_power_budget(unsigned int freq)
 {
 	/* SW deliver fixed value as power budget */
-	return data->sw_pbl;
+	return READ_ONCE(data->sw_pbl);
 }
 
 static void hiu_update_reg(int offset, int mask, int shift, unsigned int val)
@@ -636,11 +638,37 @@ hiu_pb_enabled_show(struct device *dev, struct device_attribute *devattr,
 				data->tb_enabled?"enabled":"disabled", data->sw_pbl);
 }
 
+static ssize_t hiu_power_budget_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return scnprintf(buf, PAGE_SIZE, "current=%u\nstock=%u\nmax=%u\n",
+		READ_ONCE(data->sw_pbl), stock_sw_pbl,
+		exynos_hiu_budget_max(stock_sw_pbl));
+}
+
+static ssize_t hiu_power_budget_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	unsigned int value;
+	int ret = kstrtouint(buf, 10, &value);
+
+	if (ret)
+		return ret;
+	if (!exynos_hiu_budget_valid(stock_sw_pbl, value))
+		return -ERANGE;
+	if (!READ_ONCE(data->enabled))
+		return -EAGAIN;
+	/* Subsequent normal mailbox requests use this budget; PC/TB stay enabled. */
+	WRITE_ONCE(data->sw_pbl, value);
+	return count;
+}
+
 static DEVICE_ATTR(enabled, 0644, hiu_enable_show, hiu_enable_store);
 static DEVICE_ATTR(boosted, 0444, hiu_boosted_show, NULL);
 static DEVICE_ATTR(boost_threshold, 0444, hiu_boost_threshold_show, NULL);
 static DEVICE_ATTR(dvfs_limit, 0644, hiu_dvfs_limit_show, hiu_dvfs_limit_store);
 static DEVICE_ATTR(pb_enabled, 0444, hiu_pb_enabled_show, NULL);
+static DEVICE_ATTR(power_budget, 0600, hiu_power_budget_show, hiu_power_budget_store);
 
 static struct attribute *exynos_hiu_attrs[] = {
 	&dev_attr_enabled.attr,
@@ -648,6 +676,7 @@ static struct attribute *exynos_hiu_attrs[] = {
 	&dev_attr_boost_threshold.attr,
 	&dev_attr_dvfs_limit.attr,
 	&dev_attr_pb_enabled.attr,
+	&dev_attr_power_budget.attr,
 	NULL,
 };
 
@@ -672,6 +701,7 @@ static int hiu_dt_parsing(struct device_node *dn)
 	ret |= of_property_read_string(dn, "sibling-cpus", &buf);
 	if (ret)
 		return ret;
+	stock_sw_pbl = data->sw_pbl;
 
 	if (!of_property_read_u32(dn, "cal-id", &data->cal_id))
 		val = cal_dfs_get_max_freq(data->cal_id);

@@ -1077,6 +1077,34 @@ out:
 
 static u64 exynos_ufs_dma_mask = DMA_BIT_MASK(32);
 
+static ssize_t link_caps_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+	struct exynos_ufs *ufs = dev_get_platdata(dev);
+	struct ufs_pa_layer_attr *max, *active;
+
+	if (!hba || !ufs || !hba->max_pwr_info.is_valid)
+		return -EAGAIN;
+	max = &hba->max_pwr_info.info;
+	active = &hba->pwr_info;
+	/* Cached negotiation results: no live link commands or power changes. */
+	return scnprintf(buf, PAGE_SIZE,
+		"host_max_rx_gear=%u\ndevice_max_rx_gear=%u\n"
+		"connected_rx_lanes=%u\nconnected_tx_lanes=%u\n"
+		"active_rx_gear=%u\nactive_tx_gear=%u\n"
+		"active_rx_lanes=%u\nactive_tx_lanes=%u\n"
+		"hs_series=%u\nrx_power_mode=%u\ntx_power_mode=%u\n"
+		"dt_gear_limit=%u\nunipro_cached_hz=%u\n",
+		READ_ONCE(max->gear_rx), READ_ONCE(max->gear_tx),
+		READ_ONCE(max->lane_rx), READ_ONCE(max->lane_tx),
+		READ_ONCE(active->gear_rx), READ_ONCE(active->gear_tx),
+		READ_ONCE(active->lane_rx), READ_ONCE(active->lane_tx),
+		READ_ONCE(active->hs_rate), READ_ONCE(active->pwr_rx),
+		READ_ONCE(active->pwr_tx), ufs->req_pmd_parm.gear, ufs->mclk_rate);
+}
+static DEVICE_ATTR(link_caps, 0400, link_caps_show, NULL);
+
 static int exynos_ufs_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -1137,6 +1165,8 @@ static int exynos_ufs_probe(struct platform_device *pdev)
 	pm_qos_add_request(&ufs->pm_qos_int, PM_QOS_DEVICE_THROUGHPUT, 0);
 
 	ret = ufshcd_pltfrm_init(pdev, &exynos_ufs_ops);
+	if (!ret && device_create_file(dev, &dev_attr_link_caps))
+		dev_warn(dev, "link capability diagnostics unavailable\n");
 
 	return ret;
 }
@@ -1145,6 +1175,7 @@ static int exynos_ufs_remove(struct platform_device *pdev)
 {
 	struct exynos_ufs *ufs = dev_get_platdata(&pdev->dev);
 
+	device_remove_file(&pdev->dev, &dev_attr_link_caps);
 	ufshcd_pltfrm_exit(pdev);
 
 	pm_qos_remove_request(&ufs->pm_qos_int);

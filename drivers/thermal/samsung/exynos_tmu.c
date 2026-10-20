@@ -46,6 +46,7 @@
 #include <linux/cpuhotplug.h>
 #include <soc/samsung/tmu.h>
 #include <soc/samsung/ect_parser.h>
+#include <soc/samsung/cal-if.h>
 #ifdef CONFIG_EXYNOS_MCINFO
 #include <soc/samsung/exynos-mcinfo.h>
 #endif
@@ -1447,6 +1448,8 @@ static int exynos_tmu_parse_ect(struct exynos_tmu_data *data)
 		for (i = 0; i < function->num_of_range; ++i) {
 			temperature = function->range_list[i].lower_bound_temperature;
 			freq = function->range_list[i].max_frequency;
+			freq = exynos9820_cluster_oc_thermal_limit(tz->type,
+				i, temperature, freq);
 			__tz->trips[i].temperature = temperature  * MCELSIUS;
 			__tz->tbps[i].value = freq;
 

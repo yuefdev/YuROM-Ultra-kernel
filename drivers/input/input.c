@@ -739,6 +739,19 @@ static int input_disable_device(struct input_dev *dev)
 	return 0;
 }
 
+/**
+ * input_set_device_enabled - change the gate without dropping handler references
+ * @dev: input device whose existing open/close callbacks manage power
+ * @enabled: whether existing handlers should receive events
+ *
+ * Serialises with the legacy enabled sysfs attribute through dev->mutex.
+ */
+int input_set_device_enabled(struct input_dev *dev, bool enabled)
+{
+	return enabled ? input_enable_device(dev) : input_disable_device(dev);
+}
+EXPORT_SYMBOL_GPL(input_set_device_enabled);
+
 /*
  * Simulate keyup events for all keys that are marked as pressed.
  * The function must be called with dev->event_lock held.

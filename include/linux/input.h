@@ -384,6 +384,7 @@ void input_release_device(struct input_handle *);
 
 int input_open_device(struct input_handle *);
 void input_close_device(struct input_handle *);
+int input_set_device_enabled(struct input_dev *, bool enabled);
 
 int input_flush_device(struct input_handle *handle, struct file *file);
 
